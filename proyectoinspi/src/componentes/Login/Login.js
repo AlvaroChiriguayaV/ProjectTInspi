@@ -31,7 +31,7 @@ export const Login = () => {
                     <input onChange={(event) => { setPassword(event.target.value); }} type="password" placeholder="Contraseña" name="password" required />
                     <i class="fa fa-lock"></i>
                 </div>
-                <button type="submit" title="Ingresar" name="Ingresar" onClick={AccerLogin}>Iniciar Sesión</button>
+                <button type="submit" title="Ingresar" name="Ingresar" onClick={AccerLogin}>Iniciar</button>
             </form>
             <div class="pie-form">
                 <a href="#">¿No puedes Iniciar Sesión?</a>
