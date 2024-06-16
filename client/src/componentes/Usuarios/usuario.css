@@ -1,0 +1,72 @@
+.btn {
+  cursor: pointer;
+}
+
+/* Estilos CSS para los botones de acción */
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px; /* Ancho fijo para ambos botones */
+  height: 32px; /* Altura fija para ambos botones */
+  padding: 0;
+}
+
+/* Estilos adicionales para los iconos dentro de los botones */
+.action-button i {
+  font-size: 16px; /* Tamaño del icono */
+}
+/* Estilo para el modal */
+.modal.show {
+  overflow: hidden; /* Evita que el modal haga que la página se desplace */
+}
+/* Estilo para hacer la tabla responsive */
+.table-responsive {
+  overflow-x: auto;
+}
+
+/* Estilos adicionales para la tabla */
+.dataTable {
+  width: 100%; /* Ajusta el ancho de la tabla al contenedor */
+}
+
+/* Estilos para las celdas de la tabla */
+.dataTable tbody td,
+.dataTable thead th {
+  white-space: nowrap; /* Evita el desbordamiento de texto en las celdas */
+  text-overflow: ellipsis; /* Muestra puntos suspensivos (...) cuando el contenido no cabe en la celda */
+}
+
+/* Estilos para la paginación de la tabla */
+.pagination {
+  margin-top: 10px; /* Espaciado superior */
+  text-align: center; /* Centra los elementos de la paginación */
+}
+
+/* Estilos para los botones de la paginación */
+.pagination .page-item {
+  display: inline-block; /* Muestra los botones en línea */
+  margin-right: 5px; /* Espacio entre los botones */
+}
+
+/* Estilos para los enlaces de la paginación */
+.pagination .page-link {
+  padding: 6px 12px; /* Espaciado interno de los botones */
+  border: 1px solid #dee2e6; /* Borde de los botones */
+  border-radius: 4px; /* Borde redondeado de los botones */
+  background-color: #ffffff; /* Color de fondo de los botones */
+  color: #007bff; /* Color del texto de los botones */
+}
+
+/* Estilos para los enlaces activos de la paginación */
+.pagination .page-item.active .page-link {
+  background-color: #007bff; /* Color de fondo del botón activo */
+  border-color: #007bff; /* Color del borde del botón activo */
+  color: #ffffff; /* Color del texto del botón activo */
+}
+
+/*usuarios*/
+.btn-link {
+  text-decoration: none;
+  color: red;
+}

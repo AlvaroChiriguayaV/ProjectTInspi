@@ -1,0 +1,37 @@
+.bs-body-color {
+    background-image: url('./image/fondo6.png');
+    background-size:cover; /* Asegura que la imagen se ajuste sin perder proporciones */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+    background-position: center center; /* Centra la imagen en el contenedor */
+    margin: 0;
+  }
+
+  .card-body{
+    background-color: rgba(192, 192, 192, 0.3); /* Fondo gris semi-transparente */
+    border: 1px solid #ccc; /* Borde del contenedor */
+    padding: 20px; /* Espaciado interno */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+    border-radius: 10px;
+
+  }
+
+  /* Estilos para el botón de inicio de sesión */
+  .btn-primary {
+    background-color: #0C3247; /* Color de fondo */
+    color: #fff; /* Color del texto */
+    border: none; /* Sin borde */
+    padding: 10px 20px; /* Espaciado interno */
+    border-radius: 5px; /* Borde redondeado */
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Transición suave */
+  }
+  
+  .btn-primary:hover {
+    background-color: #5291c9; /* Color de fondo al pasar el cursor */
+  }
+  @media (min-width: 992px) {
+    .col-lg-5 {
+        flex: 0 0 auto;
+        width: 37%;
+    }
+}
