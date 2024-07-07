@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import DataTable from 'react-data-table-component';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-
+import Uri from '../../enviroment/enviroment';
 const Auditoria = () => {
   const [auditoria, setAuditoria] = useState([]);
   const [filteredAuditoria, setFilteredAuditoria] = useState([]);
@@ -32,7 +32,7 @@ const Auditoria = () => {
         return;
       }
 
-      const response = await fetch('/api/auditoria', {
+      const response = await fetch(Uri+'api/auditoria', {
         headers: {
           Authorization: `Bearer ${token}`
         }

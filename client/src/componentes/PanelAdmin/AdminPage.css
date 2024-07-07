@@ -7,7 +7,10 @@
   .navbar-dark .navbar-nav .nav-link:hover {
     color: rgba(255, 255, 255, 1);
   }
-  
+  .img-flui, .img-thumbnail {
+    height: auto;
+    max-width: 100%;
+}
   
   /* Estilos para la barra lateral en dispositivos móviles */
   @media (max-width: 500px) {

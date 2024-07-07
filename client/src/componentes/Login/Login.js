@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Importación de Bootstrap
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import './Login.css';
+import './login.css';
+import labLogo from './image/GB-LAB1.png';
+import Uri from '../../enviroment/enviroment';
 
 
 const Login = () => {
@@ -13,7 +15,7 @@ const Login = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch('/api/login', {
+      const response = await fetch(Uri+'api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -42,7 +44,8 @@ const Login = () => {
           <div className="bs-secondary-color col-lg-5">
             <div className="card shadow-lg border-0 rounded-lg mt-5">
               <div className="card-body text-center">
-              <img  src="https://www.gob.ec/sites/default/files/styles/medium/public/2018-11/INSPI%20LOGO_0.png?itok=3n2KJyo2" alt="Logo de INSPI" />
+              {/* <h4 style={{ color: 'blue' }}>Inicio de Sesión</h4> */}
+              <img  src={labLogo} alt="Laboratorio Clínico GB-Lab" className="img-fluid mb-3" />
                 <div className="form-floating mb-3">
                   <input
                     className="form-control"
@@ -53,7 +56,7 @@ const Login = () => {
                     onChange={(e) => setCedula(e.target.value)}
                   />
                   <label htmlFor="input" style={{ color: '#808080', opacity: 0.8 }}>
-                    Usuario <i class="fa fa-user">
+                    Usuario <i className="fa fa-user">
                   </i></label>
                 </div>
                 <div className="form-floating mb-3">
@@ -74,7 +77,7 @@ const Login = () => {
                   <button className="btn btn-primary" onClick={handleLogin}>
                     Login
                   </button>
-                  <a href="/register" className="mt-3">¿Olvidaste tu Contraseña?</a>
+                  <a href="/register" className="mt-3">¿Olvidaste tu conteña?</a>
                 </div>
               </div>
             </div>

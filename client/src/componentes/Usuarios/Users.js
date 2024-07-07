@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import DataTable from 'react-data-table-component';
-import './Usuario.css';
+import './usuario.css';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import Uri from '../../enviroment/enviroment';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -32,7 +33,7 @@ const Users = () => {
         return;
       }
 
-      const usersResponse = await fetch('/api/users', {
+      const usersResponse = await fetch(Uri+'api/users', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -43,7 +44,7 @@ const Users = () => {
         setUsers(userData.users);
         setFilteredUsers(userData.users);
 
-        const sessionResponse = await fetch('/api/session', {
+        const sessionResponse = await fetch(Uri+'api/session', {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -70,7 +71,7 @@ const Users = () => {
         console.error('Token no encontrado en localStorage');
         return;
       }
-      const response = await fetch('/api/roles', {
+      const response = await fetch(Uri+'api/roles', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -137,11 +138,11 @@ const Users = () => {
     }
     try {
       const token = localStorage.getItem('token');
-      let endpoint = '/api/users';
+      let endpoint = Uri+'api/users';
       let method = 'POST';
   
       if (editUser) {
-        endpoint = `/api/users/${editUser.cedula}`;
+        endpoint = Uri+`api/users/${editUser.cedula}`;
         method = 'PUT';
       }
   
@@ -185,7 +186,7 @@ const Users = () => {
     }
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/users/${userId}`, {
+      const response = await fetch(Uri+`api/users/${userId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`
@@ -260,7 +261,7 @@ const Users = () => {
   
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/users/${editUser.cedula}/password`, {
+      const response = await fetch(Uri+`api/users/${editUser.cedula}/password`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -290,7 +291,7 @@ const Users = () => {
       sortable: true,
     },
     {
-      name: 'NOMBRE',
+      name: 'USUARIO',
       selector: row => row.nombre,
       sortable: true,
     },
@@ -348,7 +349,7 @@ const Users = () => {
         />
         {userPermissions.includes(1) && (
           <button className="btn btn-success mr-2" onClick={handleCreateUser}>
-            <i className="fas fa-plus"></i> Crear Usuario
+            <i className="fas fa-plus"></i> Nuevo
           </button>
         )}
       </div>

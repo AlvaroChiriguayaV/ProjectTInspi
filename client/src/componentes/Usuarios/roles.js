@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import DataTable from 'react-data-table-component';
-import './Usuario.css';
+import './usuario.css';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import RoleForm from './roleForm';
+import Uri from '../../enviroment/enviroment';
 
 const Roles = () => {
   const [roles, setRoles] = useState([]);
@@ -24,7 +25,7 @@ const Roles = () => {
         return;
       }
 
-      const rolesResponse = await fetch('/api/roles', {
+      const rolesResponse = await fetch(Uri+'api/roles', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -35,7 +36,7 @@ const Roles = () => {
         setRoles(rolesData.roles);
         setFilteredRoles(rolesData.roles);
 
-        const sessionResponse = await fetch('/api/session', {
+        const sessionResponse = await fetch(Uri+'api/session', {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -62,7 +63,7 @@ const Roles = () => {
         return;
       }
 
-      const permissionsResponse = await fetch('/api/permisos', {
+      const permissionsResponse = await fetch(Uri+'api/permisos', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -110,7 +111,7 @@ const Roles = () => {
     }
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/roles/${roleId}`, {
+      const response = await fetch(Uri+`api/roles/${roleId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`
@@ -138,11 +139,11 @@ const Roles = () => {
     }
     try {
       const token = localStorage.getItem('token');
-      let endpoint = '/api/roles';
+      let endpoint = Uri+'api/roles';
       let method = 'POST';
 
       if (editRole) {
-        endpoint = `/api/roles/${editRole.id_rol}`;
+        endpoint = Uri+`api/roles/${editRole.id_rol}`;
         method = 'PUT';
       }
 
@@ -245,7 +246,7 @@ const Roles = () => {
             />
             {rolesPermissions.includes(4) && (
               <button className="btn btn-success mr-2" onClick={handleCreateRole}>
-                <i className="fas fa-plus"></i> Crear Rol
+                <i className="fas fa-plus"></i> Nuevo
               </button>
             )}
           </div>

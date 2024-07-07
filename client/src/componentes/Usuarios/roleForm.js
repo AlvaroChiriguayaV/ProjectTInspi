@@ -1,12 +1,13 @@
-// Dentro del componente RoleForm
-
 import React, { useState } from 'react';
+import PermissionModal from './PermissionModal'; // Asegúrate de crear este componente
 
 const RoleForm = ({ role, permissionsList, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
     nombre: role ? role.nombre : '',
     permisos: role ? role.permisos.map(p => p.id_permiso) : []
   });
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,6 +53,19 @@ const RoleForm = ({ role, permissionsList, onSave, onCancel }) => {
 
   const groupedPermissions = groupPermissions();
 
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleSavePermission = (newPermission) => {
+    permissionsList.push(newPermission);
+    handleCloseModal();
+  };
+
   return (
     <div className="container mt-4">
       <h4>{role ? 'Editar Rol' : 'Crear Nuevo Rol'}</h4>
@@ -61,7 +75,12 @@ const RoleForm = ({ role, permissionsList, onSave, onCancel }) => {
           <input type="text" className="form-control" name="nombre" value={formData.nombre} onChange={handleChange} />
         </div>
         <div className="form-group"><br/>
-          <label>Asignar Permisos al Rol</label>
+          <label>
+            Asignar Permisos al Rol&nbsp;&nbsp;&nbsp;&nbsp;
+            <button type="button" className="btn btn-primary float-right" onClick={handleOpenModal}>
+              Crear Permiso
+            </button>
+          </label>
           <table className="table table-bordered">
             <thead>
               <tr>
@@ -106,6 +125,11 @@ const RoleForm = ({ role, permissionsList, onSave, onCancel }) => {
         <button type="submit" className="btn btn-primary">{role ? 'Guardar' : 'Crear'}</button>
         <button type="button" className="btn btn-secondary" onClick={onCancel}>Cancelar</button>
       </form>
+      <PermissionModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSave={handleSavePermission}
+      />
     </div>
   );
 };
