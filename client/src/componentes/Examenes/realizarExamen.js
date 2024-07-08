@@ -116,7 +116,7 @@ const RealizarExamenes = () => {
 
         if (response.ok) {
           const data = await response.json();
-          setAnalisis(data.users);
+          setAnalisis(data.analisis);
          
 
         } else {
@@ -200,7 +200,13 @@ const RealizarExamenes = () => {
       if (analisisSeleccionado && examenSeleccionado) {
         setExamenesSeleccionados([
           ...examenesSeleccionados,
-          { analisis: analisisSeleccionado.analisis, examen: examenSeleccionado.examen }
+          { 
+            id_analisis: analisisSeleccionado.id_analisis,
+            analisis: analisisSeleccionado.analisis,
+            id_examen: examenSeleccionado.id_examen,
+            examen: examenSeleccionado.examen 
+          }
+          
         ]);
         setSelectedAnalisis('');
         setSelectedExamen('');
@@ -231,10 +237,9 @@ const RealizarExamenes = () => {
         body: JSON.stringify({
           id_paciente: paciente.id_paciente,
           id_medico: medico.id_medico,
-           examenes: examenesSeleccionados.map(e => ({ 
-            id_examen: selectedExamen, //parseInt(examenes.id_examen),  // Asegúrate de tener el campo id_examen correctamente
-            id_analisis: selectedAnalisis //parseInt(analisis.id_analisis)  // Asegúrate de tener el campo id_analisis correctamente
-          
+          examenes: examenesSeleccionados.map(e => ({ 
+            id_examen: e.id_examen,
+            id_analisis: e.id_analisis
           })),
         })
       });

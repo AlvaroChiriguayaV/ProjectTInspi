@@ -8,42 +8,19 @@ const moment = require('moment-timezone');
 router.get('/', verificaToken, async (req, res) => {
   try {
     const [rows] = await (await Conexion).execute(
-      'SELECT p.cedula AS cedula_paciente, p.paciente, m.nombre_apellido AS nombre_medico, re.fecha AS fecha_realizacion FROM realizar_examen re INNER JOIN pacientes p ON re.id_paciente = p.id_paciente INNER JOIN Medico m ON re.id_medico = m.id_medico'
+      'SELECT p.cedula AS cedula_paciente, p.paciente, m.nombre_apellido AS nombre_medico, re.fecha FROM realizar_examen re INNER JOIN pacientes p ON re.id_paciente = p.id_paciente INNER JOIN Medico m ON re.id_medico = m.id_medico GROUP BY p.cedula, p.paciente, m.nombre_apellido, re.fecha'
     );
-    const paciente = rows.map(row => ({
+    const mantexamen = rows.map(row => ({
       ...row,
       fecha: moment(row.fecha).format('YYYY-MM-DD HH:mm:ss')
     }));
-    res.json({ users: paciente });
+    res.json({ mantexamen: mantexamen });
   } catch (error) {
     console.error('Error fetching users:', error);
     res.status(500).json({ error: 'Error al obtener usuarios.' });
   }
 });
-// Endpoint para agregar un nuevo examen realizado
 
-/* router.post('/', verificaToken, async (req, res) => {
-  const { id_paciente, id_medico, id_analisis, id_examen } = req.body;
-
-  // Verifica que los parámetros requeridos no sean undefined
-  
-
-  try {
-    // Obtener la fecha actual en el formato deseado
-
-    // Insertar el nuevo examen realizado en la base de datos
-    const [result] = await (await Conexion).execute(
-      'INSERT INTO realizar_examen (id_paciente, id_medico, id_examen, id_analisis) VALUES (?, ?, ?, ?)',
-      [id_paciente, id_medico,id_examen, id_analisis]
-    );
-
-    // Respondemos con el ID del nuevo registro insertado
-    res.json({ id_realizar_examen: result.insertId });
-  } catch (error) {
-    console.error('Error al insertar examen realizado:', error);
-    res.status(500).json({ error: 'Error al insertar examen realizado.' });
-  }
-}); */
 // Endpoint para agregar un nuevo examen realizado
 
 router.post('/', verificaToken, async (req, res) => {
@@ -86,6 +63,8 @@ router.delete('/:id', verificaToken, async (req, res) => {
   try {
     
     await (await Conexion).execute('DELETE FROM Realizar_examen WHERE id_realizar = ?', [userId]);
+
+    console.log(userId)
 
     //await registrarAuditoria(usuario_nombre, ip_usuario, accion);
     res.json({ success: true, message: 'Analisis eliminado correctamente.' });

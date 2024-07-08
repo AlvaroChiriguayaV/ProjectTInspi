@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import DataTable from 'react-data-table-component';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 import RealizarExamen from './realizarExamen'; // Import the RealizarExamen component
+import EditarExamenModal from './EditarExamenModal'; // Import the EditarExamenModal component
 
 const MantenimientoExamen = () => {
   const [examenes, setExamenes] = useState([]);
@@ -11,6 +10,8 @@ const MantenimientoExamen = () => {
   const [userPermissions, setUserPermissions] = useState([]);
   const [search, setSearch] = useState('');
   const [showRealizarExamen, setShowRealizarExamen] = useState(false);
+  const [showEditarExamen, setShowEditarExamen] = useState(false);
+  const [selectedExamen, setSelectedExamen] = useState(null);
   const [error, setError] = useState(null); // Error general de la tabla
   const [modalError, setModalError] = useState(null); // Error específico del modal
 
@@ -56,8 +57,8 @@ const MantenimientoExamen = () => {
 
       if (examenesResponse.ok) {
         const examenesData = await examenesResponse.json();
-        setExamenes(examenesData.users);
-        setFilteredExamenes(examenesData.users);
+        setExamenes(examenesData.mantexamen);
+        setFilteredExamenes(examenesData.mantexamen);
       } else {
         console.error('Error fetching examenes:', examenesResponse.statusText);
       }
@@ -80,31 +81,6 @@ const MantenimientoExamen = () => {
     setFilteredExamenes(result);
   }, [search, examenes]);
 
-  const handleDeleteExamen = async (id_realizar) => {
-    const confirmDelete = window.confirm('¿Estás seguro de eliminar este examen realizado?');
-    if (!confirmDelete) {
-      return;
-    }
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/mantenexamenes/${id_realizar}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        setExamenes(examenes.filter((examen) => examen.id_realizar !== id_realizar));
-      } else {
-        const errorData = await response.json();
-        setError(errorData.error || 'Error al eliminar examen realizado.');
-      }
-    } catch (error) {
-      console.error('Error al eliminar examen realizado:', error);
-    }
-  };
-
   const handleOpenRealizarExamen = () => {
     setShowRealizarExamen(true);
     setModalError(null);
@@ -112,6 +88,18 @@ const MantenimientoExamen = () => {
 
   const handleCloseRealizarExamen = () => {
     setShowRealizarExamen(false);
+    setModalError(null);
+  };
+
+  const handleOpenEditarExamen = (examen) => {
+    setSelectedExamen(examen);
+    setShowEditarExamen(true);
+    setModalError(null);
+  };
+
+  const handleCloseEditarExamen = () => {
+    setShowEditarExamen(false);
+    setSelectedExamen(null);
     setModalError(null);
   };
 
@@ -141,8 +129,8 @@ const MantenimientoExamen = () => {
       name: 'Acciones',
       cell: row => (
         <>
-          <button title="Eliminar" className="btn btn-danger btn-sm mr-2 action-button" onClick={() => handleDeleteExamen(row.id_realizar)}>
-            <i className="fas fa-trash"></i>
+          <button title="Editar" className="btn btn-primary btn-sm mr-2 action-button" onClick={() => handleOpenEditarExamen(row)}>
+            <i className="fas fa-edit"></i>
           </button>
         </>
       ),
@@ -190,6 +178,12 @@ const MantenimientoExamen = () => {
           },
         }}
       />
+      {showEditarExamen && (
+        <EditarExamenModal
+          examen={selectedExamen}
+          onClose={handleCloseEditarExamen}
+        />
+      )}
     </div>
   );
 };

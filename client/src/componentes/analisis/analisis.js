@@ -37,8 +37,8 @@ const Analisis = () => {
 
       if (analisisResponse.ok) {
         const analisisData = await analisisResponse.json();
-        setAnalisis(analisisData.users);
-        setFilteredAnalisis(analisisData.users);
+        setAnalisis(analisisData.analisis);
+        setFilteredAnalisis(analisisData.analisis);
 
         const sessionResponse = await fetch('api/session', {
           headers: {
