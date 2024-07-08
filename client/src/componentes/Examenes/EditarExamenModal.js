@@ -131,8 +131,8 @@ const EditarExamenModal = ({ examen, onClose }) => {
             >
               <option value="">Seleccionar análisis</option>
               {analisisList.map((analisis) => (
-                <option key={analisis.id} value={analisis.nombre}>
-                  {analisis.nombre}
+                <option key={analisis.id_analisis} value={analisis.analisis}>
+                  {analisis.analisis}
                 </option>
               ))}
             </Form.Control>
@@ -149,8 +149,8 @@ const EditarExamenModal = ({ examen, onClose }) => {
             >
               <option value="">Seleccionar examen</option>
               {examenesList.map((examen) => (
-                <option key={examen.id} value={examen.nombre}>
-                  {examen.nombre}
+                <option key={examen.id_examen} value={examen.examen}>
+                  {examen.examen}
                 </option>
               ))}
             </Form.Control>
