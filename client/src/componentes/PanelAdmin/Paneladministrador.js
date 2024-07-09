@@ -208,7 +208,7 @@ const AdminPage = () => {
   };
 
   const principalCategories = ['Pacientes', 'Medico', 'Realizar Examenes' , 'Resultados de Examen'];
-  const configuracionesCategories = ['Usuarios', 'Roles', 'Auditoria', 'Analisis', 'Examenes'];
+  const configuracionesCategories = ['Usuarios', 'Roles', 'Auditoria', 'Analisis', 'Examenes','Especialidad'];
 
   if (isLoading) {
     return (

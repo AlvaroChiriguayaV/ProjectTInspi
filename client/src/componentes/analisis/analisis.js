@@ -7,11 +7,13 @@ import 'jspdf-autotable';
 
 const Analisis = () => {
   const [analisis, setAnalisis] = useState([]);
+  const [especialidades, setEspecialidades] = useState([]); // Estado para especialidades
   const [filteredAnalisis, setFilteredAnalisis] = useState([]);
   const [userPermissions, setUserPermissions] = useState([]);
   const [formData, setFormData] = useState({
     id_analisis: '',
     analisis: '',
+    id_especialidad: '', // Agregar id_especialidad
     fecha: ''
   });
   const [search, setSearch] = useState('');
@@ -60,13 +62,39 @@ const Analisis = () => {
     }
   };
 
+  // Función para obtener la lista de especialidades
+  const fetchEspecialidades = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('Token no encontrado en localStorage');
+        return;
+      }
+
+      const response = await fetch('/api/especialidades', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setEspecialidades(data.especialidades);
+      } else {
+        console.error('Error fetching especialidades:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching especialidades:', error);
+    }
+  };
+
   // Función para crear o editar un análisis
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const {analisis} = formData;
+    const { analisis, id_especialidad } = formData; // Incluir id_especialidad en la validación
 
     // Validación de campos
-    if (!analisis) {
+    if (!analisis || !id_especialidad) {
       setModalError('Todos los campos son obligatorios.');
       return;
     }
@@ -137,6 +165,7 @@ const Analisis = () => {
     setFormData({
       id_analisis: '',
       analisis: '',
+      id_especialidad: '', // Agregar id_especialidad
       fecha: ''
     });
     setError(null);
@@ -162,7 +191,8 @@ const Analisis = () => {
   const handleEditAnalisis = (analisis) => {
     setEditAnalisis(analisis);
     setFormData({
-      ...analisis
+      ...analisis,
+      id_especialidad: analisis.id_especialidad // Agregar id_especialidad
     });
     setShowModal(true);
     setError(null);
@@ -206,6 +236,11 @@ const Analisis = () => {
       sortable: true,
     },
     {
+      name: 'ESPECIALIDAD',
+      selector: row => row.nombre, // Asegúrate de que el nombre de la especialidad esté disponible
+      sortable: true,
+    },
+    {
       name: 'FECHA',
       selector: row => row.fecha,
       sortable: true,
@@ -216,7 +251,7 @@ const Analisis = () => {
         <>
           <button title="Editar" className="btn btn-primary btn-sm mr-2 action-button" onClick={() => handleEditAnalisis(row)}>
             <i className="fas fa-edit"></i>
-           </button> 
+          </button>
           <button title="Eliminar" className="btn btn-danger btn-sm mr-2 action-button" onClick={() => handleDeleteAnalisis(row.id_analisis)}>
             <i className="fas fa-trash"></i>
           </button>
@@ -227,13 +262,13 @@ const Analisis = () => {
 
   useEffect(() => {
     fetchAnalisis();
+    fetchEspecialidades(); // Obtener especialidades al cargar el componente
   }, []);
 
   useEffect(() => {
     const result = analisis.filter(entry => {
       return entry.analisis.toLowerCase().includes(search.toLowerCase());
-      
-  });
+    });
     setFilteredAnalisis(result);
   }, [search, analisis]);
 
@@ -294,6 +329,17 @@ const Analisis = () => {
                   <div className="form-group">
                     <label>Nombre del Análisis</label>
                     <input type="text" className="form-control" name="analisis" value={formData.analisis} onChange={handleChange} />
+                  </div>
+                  <div className="form-group">
+                    <label>Especialidad</label>
+                    <select className="form-control" name="id_especialidad" value={formData.id_especialidad} onChange={handleChange}>
+                      <option value="">Seleccione una especialidad</option>
+                      {especialidades.map((especialidad) => (
+                        <option key={especialidad.id_especialidad} value={especialidad.id_especialidad}>
+                          {especialidad.nombre}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <button type="submit" className="btn btn-primary">
                     {editAnalisis ? 'Editar' : 'Crear'}

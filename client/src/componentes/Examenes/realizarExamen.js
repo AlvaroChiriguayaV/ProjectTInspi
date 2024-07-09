@@ -3,8 +3,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button, Table, Form, Row, Col } from 'react-bootstrap';
 
 const RealizarExamenes = () => {
-  const [cedulaPaciente, setCedulaPaciente] = useState('');
-  const [cedulaMedico, setCedulaMedico] = useState('');
   const [paciente, setPaciente] = useState(null);
   const [medico, setMedico] = useState(null);
   const [error, setError] = useState(null);
@@ -100,7 +98,15 @@ const RealizarExamenes = () => {
       }
     };
 
+    fetchSession();
+    fetchPacientes();
+    fetchMedicos();
+  }, []);
+
+  useEffect(() => {
     const fetchAnalisis = async () => {
+      if (!medico) return;
+
       try {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -108,7 +114,7 @@ const RealizarExamenes = () => {
           return;
         }
 
-        const response = await fetch('/api/analisis', {
+        const response = await fetch(`/api/analisis?especialidad=${medico.nombre}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -117,8 +123,9 @@ const RealizarExamenes = () => {
         if (response.ok) {
           const data = await response.json();
           setAnalisis(data.analisis);
-         
-
+          setSelectedAnalisis('');
+          setSelectedExamen('');
+          setExamenes([]);
         } else {
           setError('Error al obtener la lista de análisis');
         }
@@ -128,11 +135,8 @@ const RealizarExamenes = () => {
       }
     };
 
-    fetchSession();
-    fetchPacientes();
-    fetchMedicos();
     fetchAnalisis();
-  }, []);
+  }, [medico]);
 
   useEffect(() => {
     const fetchExamenes = async () => {
@@ -172,13 +176,11 @@ const RealizarExamenes = () => {
   }, [selectedAnalisis]);
 
   const handlePacienteSelect = (paciente) => {
-    setCedulaPaciente(paciente.cedula);
     setPaciente(paciente);
     setShowPacienteModal(false);
   };
 
   const handleMedicoSelect = (medico) => {
-    setCedulaMedico(medico.cedula);
     setMedico(medico);
     setShowMedicoModal(false);
   };
@@ -192,7 +194,6 @@ const RealizarExamenes = () => {
   );
 
   const handleAgregarExamen = () => {
-
     if (selectedAnalisis && selectedExamen) {
       const analisisSeleccionado = analisis.find(a => a.id_analisis === parseInt(selectedAnalisis));
       const examenSeleccionado = examenes.find(e => e.id_examen === parseInt(selectedExamen));
@@ -206,7 +207,6 @@ const RealizarExamenes = () => {
             id_examen: examenSeleccionado.id_examen,
             examen: examenSeleccionado.examen 
           }
-          
         ]);
         setSelectedAnalisis('');
         setSelectedExamen('');
@@ -216,11 +216,18 @@ const RealizarExamenes = () => {
     }
   };
 
+  const handleEliminarExamen = (index) => {
+    const newExamenesSeleccionados = [...examenesSeleccionados];
+    newExamenesSeleccionados.splice(index, 1);
+    setExamenesSeleccionados(newExamenesSeleccionados);
+  };
+
   const handleRegistrarExamenes = async () => {
     if (!paciente || !medico || !examenesSeleccionados.length) {
       alert('Debe seleccionar un paciente, un médico y agregar al menos un examen.');
       return;
     }
+
     const token = localStorage.getItem('token');
     if (!token) {
       setError('Token no encontrado en localStorage');
@@ -243,15 +250,9 @@ const RealizarExamenes = () => {
           })),
         })
       });
-      console.log(paciente)
-      console.log(selectedAnalisis)
-      console.log(examenesSeleccionados)
       
-  
       if (response.ok) {
         setExamenesSeleccionados([]);
-        setCedulaPaciente('');
-        setCedulaMedico('');
         setPaciente(null);
         setMedico(null);
       } else {
@@ -268,196 +269,162 @@ const RealizarExamenes = () => {
     <div className="container mt-4">
       <h4>Realizar Exámenes</h4>
       <Row className="mb-3">
-        <Col md={3}>
-          <Form.Group>
-            <Form.Label>Cédula del Paciente</Form.Label>
-            <Form.Control
-              type="text"
-              value={cedulaPaciente}
-              onChange={(e) => setCedulaPaciente(e.target.value)}
-              readOnly
-            />
-          </Form.Group>
-        </Col>
-        <Col md={6}>
+        <Col>
           <Form.Group>
             <Form.Label>Paciente</Form.Label>
-            <Form.Control
-              type="text"
-              value={paciente ? paciente.paciente : ''}
-              readOnly
-            />
+            <div className="input-group">
+              <Form.Control
+                type="text"
+                value={paciente ? paciente.paciente : ''}
+                readOnly
+              />
+              <Button variant="primary" onClick={() => setShowPacienteModal(true)}>Buscar Paciente</Button>
+            </div>
           </Form.Group>
         </Col>
-        <Col md={3} className="d-flex align-items-end">
-          <Button className="btn btn-success mr-2" onClick={() => setShowPacienteModal(true)}>
-            <i className="fa-solid fa-magnifying-glass"></i> Buscar
-          </Button>
+        <Col>
+          <Form.Group>
+            <Form.Label>Médico</Form.Label>
+            <div className="input-group">
+              <Form.Control
+                type="text"
+                value={medico ? medico.nombre_apellido : ''}
+                readOnly
+              />
+              <Button variant="primary" onClick={() => setShowMedicoModal(true)}>Buscar Médico</Button>
+            </div>
+          </Form.Group>
         </Col>
       </Row>
       <Row className="mb-3">
-        <Col md={3}>
-          <Form.Group>
-            <Form.Label>Cédula del Médico</Form.Label>
-            <Form.Control
-              type="text"
-              value={cedulaMedico}
-              onChange={(e) => setCedulaMedico(e.target.value)}
-              readOnly
-            />
-          </Form.Group>
-        </Col>
-        <Col md={6}>
-          <Form.Group>
-            <Form.Label>Médico</Form.Label>
-            <Form.Control
-              type="text"
-              value={medico ? medico.nombre_apellido : ''}
-              readOnly
-            />
-          </Form.Group>
-        </Col>
-        <Col md={3} className="d-flex align-items-end">
-          <Button className="btn btn-success mr-2" onClick={() => setShowMedicoModal(true)}>
-            <i className="fa-solid fa-magnifying-glass"></i> Buscar
-          </Button>
-        </Col>
-      </Row>
-      <Row className="mb-3 align-items-center">
-        <Col md={4}>
+        <Col>
           <Form.Group>
             <Form.Label>Análisis</Form.Label>
-            <select className="form-control" onChange={(e) => setSelectedAnalisis(e.target.value)} value={selectedAnalisis}>
-              <option value="">Seleccionar Análisis</option>
+            <Form.Control
+              as="select"
+              value={selectedAnalisis}
+              onChange={(e) => setSelectedAnalisis(e.target.value)}
+              disabled={!analisis.length}
+            >
+              <option value="">Seleccione un análisis</option>
               {analisis.map((a) => (
-                <option key={a.id_analisis} value={a.id_analisis}>{a.analisis}</option>
+                <option key={a.id_analisis} value={a.id_analisis}>
+                  {a.analisis}
+                </option>
               ))}
-            </select>
+            </Form.Control>
           </Form.Group>
         </Col>
-        <Col md={4}>
+        <Col>
           <Form.Group>
-            <Form.Label>Examen</Form.Label>
-            <select className="form-control" value={selectedExamen} onChange={(e) => setSelectedExamen(e.target.value)} disabled={!selectedAnalisis}>
-              <option value="">Seleccionar Examen</option>
+            <Form.Label>Exámenes</Form.Label>
+            <Form.Control
+              as="select"
+              value={selectedExamen}
+              onChange={(e) => setSelectedExamen(e.target.value)}
+              disabled={!selectedAnalisis}
+            >
+              <option value="">Seleccione un examen</option>
               {examenes.map((e) => (
-                <option key={e.id_examen} value={e.id_examen}>{e.examen}</option>
+                <option key={e.id_examen} value={e.id_examen}>
+                  {e.examen}
+                </option>
               ))}
-            </select>
+            </Form.Control>
           </Form.Group>
         </Col>
-        <Col md={4}>
-          <Button className="btn btn-danger mb-2" onClick={handleAgregarExamen} disabled={!selectedAnalisis || !selectedExamen}>
-            <i className="fas fa-plus"></i> Agregar
-          </Button>
-        </Col>
       </Row>
-      <Row className="mb-3 justify-content-center">
-        <Col md={12}>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Análisis</th>
-                <th>Examen</th>
-                <th>Acción</th>
-              </tr>
-            </thead>
-            <tbody>
-              {examenesSeleccionados.map((examen, index) => (
-                <tr key={index}>
-                  <td>{examen.analisis}</td>
-                  <td>{examen.examen}</td>
-                  <td>
-                    <Button variant="danger" onClick={() => setExamenesSeleccionados(examenesSeleccionados.filter((_, i) => i !== index))}>
-                      Eliminar
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </Col>
-      </Row>
-      <Row className="mb-3 justify-content-center">
-        <Col md={4}>
-          <Button className="btn btn-success btn-block" onClick={handleRegistrarExamenes} disabled={examenesSeleccionados.length === 0}>
-            Registrar Realización Exámenes
-          </Button>
-        </Col>
-      </Row>
+      <Button variant="success" onClick={handleAgregarExamen} disabled={!selectedAnalisis || !selectedExamen}>Agregar Examen</Button>
+      <Table striped bordered hover className="mt-4">
+        <thead>
+          <tr>
+            <th>Análisis</th>
+            <th>Examen</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {examenesSeleccionados.map((examen, index) => (
+            <tr key={index}>
+              <td>{examen.analisis}</td>
+              <td>{examen.examen}</td>
+              <td>
+                <Button variant="danger" onClick={() => handleEliminarExamen(index)}>Eliminar</Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+      <Button variant="primary" onClick={handleRegistrarExamenes} disabled={!examenesSeleccionados.length}>Registrar Exámenes</Button>
 
-      {/* Modal de Pacientes */}
-      <Modal show={showPacienteModal} onHide={() => setShowPacienteModal(false)}>
+      <Modal show={showPacienteModal} onHide={() => setShowPacienteModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Buscar Paciente</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form.Group>
-            <Form.Label>Buscar</Form.Label>
+            <Form.Label>Buscar por Nombre o Cédula</Form.Label>
             <Form.Control
               type="text"
               value={searchPaciente}
               onChange={(e) => setSearchPaciente(e.target.value)}
             />
           </Form.Group>
-          <Table striped bordered hover>
+          <Table striped bordered hover className="mt-3">
             <thead>
               <tr>
                 <th>Cédula</th>
-                <th>Paciente</th>
-                <th>Seleccionar</th>
+                <th>Nombre</th>
               </tr>
             </thead>
             <tbody>
-              {filteredPacientes.map((paciente) => (
-                <tr key={paciente.cedula}>
-                  <td>{paciente.cedula}</td>
-                  <td>{paciente.paciente}</td>
-                  <td>
-                    <Button variant="primary" onClick={() => handlePacienteSelect(paciente)}>Seleccionar</Button>
-                  </td>
+              {filteredPacientes.map((p) => (
+                <tr key={p.cedula} onClick={() => handlePacienteSelect(p)} style={{ cursor: 'pointer' }}>
+                  <td>{p.cedula}</td>
+                  <td>{p.paciente}</td>
                 </tr>
               ))}
             </tbody>
           </Table>
         </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowPacienteModal(false)}>Cerrar</Button>
+        </Modal.Footer>
       </Modal>
 
-      {/* Modal de Médicos */}
-      <Modal show={showMedicoModal} onHide={() => setShowMedicoModal(false)}>
+      <Modal show={showMedicoModal} onHide={() => setShowMedicoModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Buscar Médico</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form.Group>
-            <Form.Label>Buscar</Form.Label>
+            <Form.Label>Buscar por Nombre o Cédula</Form.Label>
             <Form.Control
               type="text"
               value={searchMedico}
               onChange={(e) => setSearchMedico(e.target.value)}
             />
           </Form.Group>
-          <Table striped bordered hover>
+          <Table striped bordered hover className="mt-3">
             <thead>
               <tr>
                 <th>Cédula</th>
-                <th>Nombre y Apellido</th>
-                <th>Seleccionar</th>
+                <th>Nombre</th>
               </tr>
             </thead>
             <tbody>
-              {filteredMedicos.map((medico) => (
-                <tr key={medico.cedula}>
-                  <td>{medico.cedula}</td>
-                  <td>{medico.nombre_apellido}</td>
-                  <td>
-                    <Button variant="primary" onClick={() => handleMedicoSelect(medico)}>Seleccionar</Button>
-                  </td>
+              {filteredMedicos.map((m) => (
+                <tr key={m.cedula} onClick={() => handleMedicoSelect(m)} style={{ cursor: 'pointer' }}>
+                  <td>{m.cedula}</td>
+                  <td>{m.nombre_apellido}</td>
                 </tr>
               ))}
             </tbody>
           </Table>
         </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowMedicoModal(false)}>Cerrar</Button>
+        </Modal.Footer>
       </Modal>
     </div>
   );

@@ -3,37 +3,25 @@ const router = express.Router();
 const Conexion = require('../controlador/conexion');
 const { verificaToken } = require('./auth');
 const getClientIp = require('request-ip').getClientIp;
-const moment = require('moment-timezone');
+
 
 
 router.get('/', verificaToken, async (req, res) => {
-  try {
-      const especialidad = req.query.especialidad;
-      let query = 'SELECT * FROM Analisis a INNER JOIN Especialidad e on a.id_especialidad=e.id_especialidad';
-      let params = [];
+    try {
+      const [rows] = await (await Conexion).execute(
+        'SELECT * FROM Especialidad'
+      );
 
-      if (especialidad) {
-          query += ' WHERE e.nombre = ?';
-          params.push(especialidad);
-      }
-
-      const [rows] = await (await Conexion).execute(query, params);
-
-      const analisis = rows.map(row => ({
-          ...row,
-          fecha: moment(row.fecha).format('YYYY-MM-DD HH:mm:ss')
-      }));
-
-      res.json({ analisis });
-  } catch (error) {
-      console.error('Error fetching analysis:', error);
-      res.status(500).json({ error: 'Error al obtener los análisis.' });
-  }
-});
+      res.json({ especialidades: rows });
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      res.status(500).json({ error: 'Error al obtener usuarios.' });
+    }
+  });
 
   // Endpoint para crear un nuevo analisis
 router.post('/', verificaToken, async (req, res) => {
-    const {analisis, id_especialidad} = req.body;
+    const {analisis} = req.body;
     const usuario_nombre = req.user.name; // Asumiendo que el middleware verificaToken añade el nombre del usuario logueado a req.user
     const ip_usuario = getClientIp(req);
     //const accion = `Creó Usuario con Cédula: ${cedula}`;
@@ -42,8 +30,8 @@ router.post('/', verificaToken, async (req, res) => {
     try {
   
       await (await Conexion).execute(
-        'INSERT INTO Analisis (analisis, id_especialidad) VALUES (?, ?)',
-        [analisis, id_especialidad]
+        'INSERT INTO Analisis (analisis) VALUES (?)',
+        [analisis]
       );
   
       res.json({ success: true, message: 'Paciente creado correctamente.' });
@@ -76,7 +64,7 @@ router.delete('/:id', verificaToken, async (req, res) => {
 // Endpoint para editar un usuario
   router.put('/:id', verificaToken, async (req, res) => {
     const userId = req.params.id;
-    const {analisis, id_especialidad} = req.body;
+    const {analisis} = req.body;
     const usuario_nombre = req.user.name; // Asumiendo que el middleware verificaToken añade el nombre del usuario logueado a req.user
     const ip_usuario = getClientIp(req);
     const accion = `Editó Usuario: ${userId}`;
@@ -84,8 +72,8 @@ router.delete('/:id', verificaToken, async (req, res) => {
     try {
    
       await (await Conexion).execute(
-        'UPDATE Analisis SET analisis = ?, id_especialidad = ?  WHERE id_analisis = ?',
-        [analisis, id_especialidad, userId]
+        'UPDATE Analisis SET analisis = ?  WHERE id_analisis = ?',
+        [analisis, userId]
       );
   
       //await registrarAuditoria(usuario_nombre, ip_usuario, accion);

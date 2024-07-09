@@ -9,7 +9,7 @@ const moment = require('moment-timezone');
 router.get('/', verificaToken, async (req, res) => {
     try {
       const [rows] = await (await Conexion).execute(
-        'SELECT e.id_examen, a.analisis, e.examen, e.fecha FROM analisis a JOIN examenes e ON a.id_analisis = e.id_analisis'
+        'SELECT * FROM analisis a JOIN examenes e ON a.id_analisis = e.id_analisis'
       );
 
       const paciente = rows.map(row => ({

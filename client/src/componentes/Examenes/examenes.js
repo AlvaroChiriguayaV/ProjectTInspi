@@ -38,7 +38,7 @@ const Examenes = () => {
 
       if (analisisResponse.ok) {
         const analisisData = await analisisResponse.json();
-        setAnalisis(analisisData.users);
+        setAnalisis(analisisData.analisis);
 
         const sessionResponse = await fetch('api/session', {
           headers: {

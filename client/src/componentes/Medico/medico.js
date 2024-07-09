@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import DataTable from 'react-data-table-component';
-//import './medicos.css'; // Estilos específicos si los tienes
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
 const Medicos = () => {
   const [medicos, setMedicos] = useState([]);
+  const [especialidades, setEspecialidades] = useState([]); // Estado para especialidades
   const [filteredMedicos, setFilteredMedicos] = useState([]);
   const [userPermissions, setUserPermissions] = useState([]);
   const [formData, setFormData] = useState({
     cedula: '',
     nombre_apellido: '',
-    especialidad: '',
+    id_especialidad: '', // Cambiar a id_especialidad
     celular: '',
     direccion: ''
   });
@@ -62,13 +62,39 @@ const Medicos = () => {
     }
   };
 
+  // Función para obtener la lista de especialidades
+  const fetchEspecialidades = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('Token no encontrado en localStorage');
+        return;
+      }
+
+      const response = await fetch('/api/especialidades', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setEspecialidades(data.especialidades);
+      } else {
+        console.error('Error fetching especialidades:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching especialidades:', error);
+    }
+  };
+
   // Función para crear o editar un médico
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { cedula, nombre_apellido, especialidad, celular, direccion } = formData;
+    const { cedula, nombre_apellido, id_especialidad, celular, direccion } = formData;
 
     // Validación de campos
-    if (!cedula || !nombre_apellido || !especialidad || !celular || !direccion) {
+    if (!cedula || !nombre_apellido || !id_especialidad || !celular || !direccion) {
       setModalError('Todos los campos son obligatorios.');
       return;
     }
@@ -139,7 +165,7 @@ const Medicos = () => {
     setFormData({
       cedula: '',
       nombre_apellido: '',
-      especialidad: '',
+      id_especialidad: '', // Cambiar a id_especialidad
       celular: '',
       direccion: ''
     });
@@ -166,7 +192,8 @@ const Medicos = () => {
   const handleEditMedico = (medico) => {
     setEditMedico(medico);
     setFormData({
-      ...medico
+      ...medico,
+      id_especialidad: medico.id_especialidad // Cambiar a id_especialidad
     });
     setShowModal(true);
     setError(null);
@@ -186,7 +213,7 @@ const Medicos = () => {
     const medicosData = medicos.map(medico => [
       medico.cedula,
       medico.nombre_apellido,
-      medico.especialidad,
+      medico.nombre,
       medico.celular,
       medico.direccion
     ]);
@@ -213,7 +240,7 @@ const Medicos = () => {
     },
     {
       name: 'ESPECIALIDAD',
-      selector: row => row.especialidad,
+      selector: row => row.nombre, // Asegúrate de que el nombre de la especialidad esté disponible
       sortable: true,
     },
     {
@@ -243,6 +270,7 @@ const Medicos = () => {
 
   useEffect(() => {
     fetchMedicos();
+    fetchEspecialidades(); // Obtener especialidades al cargar el componente
   }, []);
 
   useEffect(() => {
@@ -264,35 +292,22 @@ const Medicos = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <button className="btn btn-success" onClick={handleOpenModal}>
-          <i className="fas fa-plus"></i> Nuevo
+        <button className="btn btn-primary mr-2" onClick={handleOpenModal}>
+          Nuevo
+        </button>
+        <button className="btn btn-secondary" onClick={handleShowReport}>
+        <i class="fas fa-file-pdf"></i>
         </button>
       </div>
-      {error && (
-        <div className="alert alert-danger mt-3" role="alert">
-          {error}
-        </div>
-      )}
+      {error && <div className="alert alert-danger">{error}</div>}
       <DataTable
         columns={columns}
         data={filteredMedicos}
         pagination
         highlightOnHover
-        pointerOnHover
-        responsive
-        customStyles={{
-          headCells: {
-            style: {
-              backgroundColor: '#135ea9',
-              color: '#ffffff',
-              border: '1px solid #ccc',
-            },
-          },
-        }}
+        striped
+        persistTableHead
       />
-      <button className="btn btn-primary mt-3" onClick={handleShowReport}>
-        Mostrar Reporte
-      </button>
 
       {showModal && (
         <div className="modal show" tabIndex="-1" role="dialog" style={{ display: 'block' }}>
@@ -317,7 +332,14 @@ const Medicos = () => {
                   </div>
                   <div className="form-group">
                     <label>Especialidad</label>
-                    <input type="text" className="form-control" name="especialidad" value={formData.especialidad} onChange={handleChange} />
+                    <select className="form-control" name="id_especialidad" value={formData.id_especialidad} onChange={handleChange}>
+                      <option value="">Seleccione una especialidad</option>
+                      {especialidades.map((especialidad) => (
+                        <option key={especialidad.id_especialidad} value={especialidad.id_especialidad}>
+                          {especialidad.nombre}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="form-group">
                     <label>Celular</label>
