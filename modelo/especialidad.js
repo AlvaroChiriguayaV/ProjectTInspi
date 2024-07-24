@@ -21,7 +21,7 @@ router.get('/', verificaToken, async (req, res) => {
 
   // Endpoint para crear un nuevo analisis
 router.post('/', verificaToken, async (req, res) => {
-    const {analisis} = req.body;
+    const {nombre} = req.body;
     const usuario_nombre = req.user.name; // Asumiendo que el middleware verificaToken añade el nombre del usuario logueado a req.user
     const ip_usuario = getClientIp(req);
     //const accion = `Creó Usuario con Cédula: ${cedula}`;
@@ -30,14 +30,14 @@ router.post('/', verificaToken, async (req, res) => {
     try {
   
       await (await Conexion).execute(
-        'INSERT INTO Analisis (analisis) VALUES (?)',
-        [analisis]
+        'INSERT INTO especialidad (nombre) VALUES (?)',
+        [nombre]
       );
   
-      res.json({ success: true, message: 'Paciente creado correctamente.' });
+      res.json({ success: true, message: 'especialidad creado correctamente.' });
     } catch (error) {
       console.error('Error creating user:', error);
-      res.status(500).json({ error: 'Error al crear usuario.' });
+      res.status(500).json({ error: 'Error al crear especialidad.' });
     }
   
     
@@ -52,7 +52,7 @@ router.delete('/:id', verificaToken, async (req, res) => {
   
     try {
       
-      await (await Conexion).execute('DELETE FROM Analisis WHERE id_analisis = ?', [userId]);
+      await (await Conexion).execute('DELETE FROM especialidad WHERE id_especialidad = ?', [userId]);
   
       //await registrarAuditoria(usuario_nombre, ip_usuario, accion);
       res.json({ success: true, message: 'Analisis eliminado correctamente.' });
@@ -64,7 +64,7 @@ router.delete('/:id', verificaToken, async (req, res) => {
 // Endpoint para editar un usuario
   router.put('/:id', verificaToken, async (req, res) => {
     const userId = req.params.id;
-    const {analisis} = req.body;
+    const {nombre} = req.body;
     const usuario_nombre = req.user.name; // Asumiendo que el middleware verificaToken añade el nombre del usuario logueado a req.user
     const ip_usuario = getClientIp(req);
     const accion = `Editó Usuario: ${userId}`;
@@ -72,8 +72,8 @@ router.delete('/:id', verificaToken, async (req, res) => {
     try {
    
       await (await Conexion).execute(
-        'UPDATE Analisis SET analisis = ?  WHERE id_analisis = ?',
-        [analisis, userId]
+        'UPDATE especialidad SET nombre = ?  WHERE id_especialidad = ?',
+        [nombre, userId]
       );
   
       //await registrarAuditoria(usuario_nombre, ip_usuario, accion);

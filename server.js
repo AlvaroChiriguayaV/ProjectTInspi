@@ -14,6 +14,7 @@ const analisisRouter = require('./modelo/analisis');
 const examenesRouter = require('./modelo/examenes');
 const manten_examenesRouter = require('./modelo/manten_examenes');
 const espcialidadRouter = require('./modelo/especialidad');
+const examDetalleRouter = require('./modelo/examen_detalles');
 
 
 function exception_routes(paths, fn) {
@@ -51,6 +52,7 @@ app.use('/api/analisis', analisisRouter);
 app.use('/api/examenes', examenesRouter);
 app.use('/api/mantenexamenes', manten_examenesRouter);
 app.use('/api/especialidades', espcialidadRouter);
+app.use('/api/examen_detalle', examDetalleRouter);
 
 app.use(express.static(path.join(__dirname, 'client', 'build')));
 

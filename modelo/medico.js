@@ -57,7 +57,7 @@ router.put('/:cedula', verificaToken, async (req, res) => {
 
     await (await Conexion).execute(
       'UPDATE Medico SET nombre_apellido = ?, celular = ?, direccion = ? , id_especialidad = ? WHERE cedula = ?',
-      [nombre_apellido, celular, direccion, medicoCedula, id_especialidad]
+      [nombre_apellido, celular, direccion, id_especialidad, medicoCedula]
     );
 
     res.json({ success: true, message: 'Médico actualizado correctamente.' });

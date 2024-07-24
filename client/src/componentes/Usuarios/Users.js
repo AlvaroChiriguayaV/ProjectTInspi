@@ -208,7 +208,8 @@ const Users = () => {
   const handleEditUser = (user) => {
     setEditUser(user);
     setFormData({
-      ...user
+      ...user, 
+      rol_id: user.rol_id
     });
     setShowModal(true);
     setError(null);

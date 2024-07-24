@@ -103,6 +103,34 @@ const MantenimientoExamen = () => {
     setModalError(null);
   };
 
+  const handleDeleteExamen = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Token no encontrado en localStorage');
+        return;
+      }
+
+      const response = await fetch(`/api/mantenexamenes/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        setExamenes(examenes.filter(examen => examen.id_realizar !== id));
+        setFilteredExamenes(filteredExamenes.filter(examen => examen.id_realizar !== id));
+      } else {
+        console.error('Error deleting examen:', response.statusText);
+        setError('Error al eliminar el examen.');
+      }
+    } catch (error) {
+      console.error('Error deleting examen:', error);
+      setError('Error al eliminar el examen.');
+    }
+  };
+
   // Columnas para la tabla de exámenes realizados
   const columns = [
     {
@@ -131,6 +159,9 @@ const MantenimientoExamen = () => {
         <>
           <button title="Editar" className="btn btn-primary btn-sm mr-2 action-button" onClick={() => handleOpenEditarExamen(row)}>
             <i className="fas fa-edit"></i>
+          </button>
+          <button title="Eliminar" className="btn btn-danger btn-sm action-button" onClick={() => handleDeleteExamen(row.id_realizar)}>
+            <i className="fas fa-trash"></i>
           </button>
         </>
       ),

@@ -10,12 +10,14 @@ import Medico from '../Medico/medico';
 import Analisis from '../analisis/analisis';
 import Examenes from '../Examenes/examenes';
 import MantExamen from '../Examenes/mantenimientoExamen';
-import RealizarExamenes from '../Examenes/realizarExamen';
+import Especialidad from '../Especilaidad/especialidad';
+import ExamenDetalle from '../Examenes/examenDetalles';
+import RegistrarResultados from '../ResultadosMedicos/resultados';
 
 import './AdminPage.css';
 import labLogo from '../Login/image/GB-LAB.png';
 import Pacientes from '../pacientes/pacientes';
-import MantenimientoExamen from '../Examenes/mantenimientoExamen';
+
 
 const AdminPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -105,13 +107,19 @@ const AdminPage = () => {
       case 'inicio':
         return (
           <>
-            <h2>{`Bienvenido, ${userName}!`}</h2>
-            <div className="card mb-4">
+            <h3>{`Bienvenido, ${userName}!`}</h3>
+           {/*  <div className="card mb-4">
+              <div className="card-body">
+                <h5 className="card-title">Estadísticas del Panel</h5>
+                <p>Información clave.</p>
+              </div>
+            </div> */}
+            <div className="card">
               <div className="card-body">
                 <div className="row">
                   <div className="col-md-4">
-                    <img src={labLogo} alt="Lab Logo" className="img-flui mb-3" />
-                    <h5 className="card-title">Laboratorio Clínico GB-Lab</h5>
+                    <img src={labLogo} alt="Lab Logo" className="img-flui mb-2" />
+                    <h5 className="card-title">Laboratorio Clínico GB-Lab </h5>
                     <p className="card-text">
                       <i className="fas fa-map-marker-alt"></i> MUCHO LOTE 1 ETAPA 3 Mz: 2344 V: 1 Av. Manuel Gómez Lince, Guayaquil, Ecuador
                     </p>
@@ -126,7 +134,7 @@ const AdminPage = () => {
                     <iframe
                       src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d997.12345!2d-79.93555!3d-2.14443!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x902d1abcde0fghij:0xabcdef12345678!2sInstituto%20Nacional%20INSPI!5e0!3m2!1sen!2sec!4v1621234567890!5m2!1sen!2sec"
                       width="100%"
-                      height="250"
+                      height="100%"
                       frameBorder="0"
                       style={{ border: 0 }}
                       allowFullScreen=""
@@ -145,8 +153,8 @@ const AdminPage = () => {
         return <Medico />;
       case 'Realizar Examenes':
         return <MantExamen />;
-      case 'Resultado de Examen':
-        return <div>Registrar Resultados Médicos</div>;
+      case 'Resultados de Examen':
+        return <RegistrarResultados/>;
       case 'users':
         return <Users />;
       case 'roles':
@@ -157,8 +165,10 @@ const AdminPage = () => {
           return <Analisis />;
       case 'examenes':
         return <Examenes/>;
-      case 'Realizar Examenes':
-        return <div>Generar Orden de Examenes</div>;
+        case 'especialidad':
+        return <Especialidad/>;
+      case 'Examen Detalles':
+        return <ExamenDetalle/>;
       default:
         return <div>Vista no encontrada</div>;
     }
@@ -205,9 +215,13 @@ const AdminPage = () => {
     'Medico': 'fa-solid fa-user-doctor',
     'Realizar Examenes': 'fas fa-file-medical',
     'Resultados de Examen': 'fas fa-vials',
+    'Analisis': 'fa-solid fa-notes-medical',
+    'Examenes': 'fas fa-file-medical-alt',
+    'Especialidad': 'fas fa-briefcase-medical',
+
   };
 
-  const principalCategories = ['Pacientes', 'Medico', 'Realizar Examenes' , 'Resultados de Examen'];
+ const principalCategories = ['Pacientes', 'Medico', 'Realizar Examenes' , 'Resultados de Examen'];
   const configuracionesCategories = ['Usuarios', 'Roles', 'Auditoria', 'Analisis', 'Examenes','Especialidad'];
 
   if (isLoading) {
@@ -285,81 +299,58 @@ const AdminPage = () => {
                 <i className="fa-solid fa-house"></i> Inicio
                 </button>
               </li>
-		
-              <div className="mt-4">
-                <h9 className="text-white">PRINCIPAL</h9>
-                <ul className="list-unstyled">
-                  {Array.from(categories)
-			
-                    .filter(category => principalCategories.includes(category))
-                    .map((category, index) => {
-			             let componentKey;
-                      switch (category) {
-                        case 'Pacientes':
-                          componentKey = 'Pacientes';
-                          break;
-                          case 'Medico':
-                            componentKey = 'Medico';
-                            break;
-                        case 'Realizar Examenes':
-                          componentKey = 'Realizar Examenes';
-                          break;
-                          case 'Resultados de Examen':
-                            componentKey = 'Resultados de Examen';
-                            break;
-                        
-                        default:
-                          componentKey = category.toLowerCase();
-                      }
-                      const iconClass = categoryIcons[category] || 'fas fa-circle'; // Default icon if not found
-                      return (
-                        <li key={index} className="nav-item">
-                          <button className="nav-link text-white btn btn-link" onClick={() => { setView(componentKey); toggleSidebar(); }}>
-                            <i className={iconClass}></i> {category}
-                          </button>
-                        </li>
-                      );
-                    })}
-                </ul>
-              </div>
+              {Array.from(categories).map((category, index) => {
+                let componentKey;
+                switch (category) {
+                  case 'Usuarios':
+                    componentKey = 'users';
+                    break;
+                  case 'Roles':
+                    componentKey = 'roles';
+                    break;
+                  case 'Auditoria':
+                    componentKey = 'auditoria';
+                    break;
+                  case 'Pacientes':
+                    componentKey = 'Pacientes';
+                    break;
+                  case 'Medico':
+                    componentKey = 'Medico';
+                    break;
+                  case 'analisis':
+                    componentKey = 'Analisis';
+                    break;
+                  case 'Realizar Examenes':
+                    componentKey = 'Realizar Examenes';
+                    break;
+                  case 'Examenes':
+                    componentKey = 'examenes';
+                    break;
+                  case 'especialidad':
+                    componentKey = 'Especialidad';
+                    break;
+                  case 'Examen Detalles':
+                    componentKey = 'Examen Detalles';
+                    break;
+                  case 'Resultados de Examen':
+                    componentKey = 'Resultados de Examen';
+                    break;
+                  default:
+                    
+                    componentKey = category.toLowerCase();
+                }
 
-              <div className="mt-4">
-                <h9 className="text-white">CONFIGURACIONES</h9>
-                <ul className="list-unstyled">
-                  {Array.from(categories)
-                    .filter(category => configuracionesCategories.includes(category))
-                    .map((category, index) => {
-                      let componentKey;
-                      switch (category) {
-                        case 'Usuarios':
-                          componentKey = 'users';
-                          break;
-                        case 'Roles':
-                          componentKey = 'roles';
-                          break;
-                        case 'Auditoria':
-                          componentKey = 'auditoria';
-                          break;
-                        case 'Analisis':
-                          componentKey = 'analisis';
-                          break;
-                        case 'Examenes':
-                            componentKey = 'examenes';
-                            break;
-                        default:
-                          componentKey = category.toLowerCase();
-                      }
-                      const iconClass = categoryIcons[category] || 'fas fa-circle'; // Default icon if not found
-                      return (
-                        <li key={index} className="nav-item">
-                          <button className="nav-link text-white btn btn-link" onClick={() => { setView(componentKey); toggleSidebar(); }}>
-                            <i className={iconClass}></i> {category}
-                          </button>
-                        </li>
-                      );
-                    })}
-                </ul>
-              </div>
+                const iconClass = categoryIcons[category] || 'fas fa-circle'; // Default icon if not found
+
+                return (
+                  
+                  <li key={index} className="nav-item">
+                    <button className="nav-link text-white btn btn-link" onClick={() => { setView(componentKey); toggleSidebar(); }}>
+                      <i className={iconClass}></i> {category}
+                    </button>
+                  </li>
+                );
+              })}
 
               <li className="nav-item d-lg-none">
                 <div className="nav-item">

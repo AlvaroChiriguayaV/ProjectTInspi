@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button, Table, Form, Row, Col } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom'; // Importa useNavigate
 
 const RealizarExamenes = () => {
   const [paciente, setPaciente] = useState(null);
@@ -18,6 +19,7 @@ const RealizarExamenes = () => {
   const [selectedAnalisis, setSelectedAnalisis] = useState('');
   const [selectedExamen, setSelectedExamen] = useState('');
   const [examenesSeleccionados, setExamenesSeleccionados] = useState([]);
+  const navigate = useNavigate(); // Inicializa useNavigate
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -267,6 +269,9 @@ const RealizarExamenes = () => {
 
   return (
     <div className="container mt-4">
+      {/* <div className="d-flex justify-content-between align-items-center mb-4">
+        <Button variant="secondary" onClick={() => navigate('/mantenimientoExamen')}>Atrás</Button>
+      </div> */}
       <h4>Realizar Exámenes</h4>
       <Row className="mb-3">
         <Col>
@@ -417,6 +422,7 @@ const RealizarExamenes = () => {
                 <tr key={m.cedula} onClick={() => handleMedicoSelect(m)} style={{ cursor: 'pointer' }}>
                   <td>{m.cedula}</td>
                   <td>{m.nombre_apellido}</td>
+                  
                 </tr>
               ))}
             </tbody>

@@ -1,30 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import DataTable from 'react-data-table-component';
-import './pacientes.css'; // Estilos específicos si los tienes
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
-const Pacientes = () => {
-  const [pacientes, setPacientes] = useState([]);
-  const [filteredPacientes, setFilteredPacientes] = useState([]);
+const Especialidad = () => {
+  const [especialidades, setEspecialidades] = useState([]);
+  const [filteredEspecialidades, setFilteredEspecialidades] = useState([]);
   const [userPermissions, setUserPermissions] = useState([]);
   const [formData, setFormData] = useState({
-    cedula: '',
-    paciente: '',
-    edad: '',
-    sexo: 'Masculino', // Valor predeterminado
-    celular: '',
-    fecha: ''
+    id_especialidad: '',
+    nombre: '',
   });
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [editPaciente, setEditPaciente] = useState(null);
+  const [editEspecialidad, setEditEspecialidad] = useState(null);
   const [error, setError] = useState(null); // Error general de la tabla
   const [modalError, setModalError] = useState(null); // Error específico del modal
 
-  // Función para obtener la lista de pacientes
-  const fetchPacientes = async () => {
+  // Función para obtener la lista de especialidades
+  const fetchEspecialidades = async () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -32,18 +27,18 @@ const Pacientes = () => {
         return;
       }
 
-      const pacientesResponse = await fetch('/api/pacientes', {
+      const especialidadesResponse = await fetch('/api/especialidades', {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
 
-      if (pacientesResponse.ok) {
-        const pacientesData = await pacientesResponse.json();
-        setPacientes(pacientesData.users);
-        setFilteredPacientes(pacientesData.users);
+      if (especialidadesResponse.ok) {
+        const especialidadesData = await especialidadesResponse.json();
+        setEspecialidades(especialidadesData.especialidades);
+        setFilteredEspecialidades(especialidadesData.especialidades);
 
-        const sessionResponse = await fetch('api/session', {
+        const sessionResponse = await fetch('/api/session', {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -56,31 +51,31 @@ const Pacientes = () => {
           console.error('Error fetching session:', sessionResponse.statusText);
         }
       } else {
-        console.error('Error fetching pacientes:', pacientesResponse.statusText);
+        console.error('Error fetching especialidades:', especialidadesResponse.statusText);
       }
     } catch (error) {
-      console.error('Error fetching pacientes:', error);
+      console.error('Error fetching especialidades:', error);
     }
   };
 
-  // Función para crear o editar un paciente
+  // Función para crear o editar una especialidad
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { cedula, paciente, edad, sexo, celular } = formData;
+    const { nombre } = formData;
 
     // Validación de campos
-    if (!cedula || !paciente || !edad || !sexo || !celular) {
+    if (!nombre) {
       setModalError('Todos los campos son obligatorios.');
       return;
     }
 
     try {
       const token = localStorage.getItem('token');
-      let endpoint = '/api/pacientes';
+      let endpoint = '/api/especialidades';
       let method = 'POST';
 
-      if (editPaciente) {
-        endpoint = `/api/pacientes/${editPaciente.cedula}`;
+      if (editEspecialidad) {
+        endpoint = `/api/especialidades/${editEspecialidad.id_especialidad}`;
         method = 'PUT';
       }
 
@@ -95,7 +90,7 @@ const Pacientes = () => {
 
       if (response.ok) {
         const responseData = await response.json();
-        fetchPacientes();
+        fetchEspecialidades();
         setShowModal(false);
       } else {
         const errorData = await response.json();
@@ -107,15 +102,15 @@ const Pacientes = () => {
     }
   };
 
-  // Función para eliminar un paciente
-  const handleDeletePaciente = async (cedula) => {
-    const confirmDelete = window.confirm('¿Estás seguro de eliminar este paciente?');
+  // Función para eliminar una especialidad
+  const handleDeleteEspecialidad = async (id_especialidad) => {
+    const confirmDelete = window.confirm('¿Estás seguro de eliminar esta especialidad?');
     if (!confirmDelete) {
       return;
     }
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/pacientes/${cedula}`, {
+      const response = await fetch(`/api/especialidades/${id_especialidad}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`
@@ -123,27 +118,23 @@ const Pacientes = () => {
       });
 
       if (response.ok) {
-        setPacientes(pacientes.filter((paciente) => paciente.cedula !== cedula));
+        setEspecialidades(especialidades.filter((especialidad) => especialidad.id_especialidad !== id_especialidad));
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Error al eliminar paciente.');
+        setError(errorData.error || 'Error al eliminar especialidad.');
       }
     } catch (error) {
-      console.error('Error al eliminar paciente:', error);
+      console.error('Error al eliminar especialidad:', error);
     }
   };
 
   // Función para abrir el modal de creación/edición
   const handleOpenModal = () => {
     setShowModal(true);
-    setEditPaciente(null);
+    setEditEspecialidad(null);
     setFormData({
-      cedula: '',
-      paciente: '',
-      edad: '',
-      sexo: 'Masculino', // Valor predeterminado
-      celular: '',
-      fecha: ''
+      id_especialidad: '',
+      nombre: '',
     });
     setError(null);
     setModalError(null);
@@ -165,83 +156,59 @@ const Pacientes = () => {
     });
   };
 
-  const handleEditPaciente = (paciente) => {
-    setEditPaciente(paciente);
+  const handleEditEspecialidad = (especialidad) => {
+    setEditEspecialidad(especialidad);
     setFormData({
-      ...paciente
+      ...especialidad,
     });
     setShowModal(true);
     setError(null);
     setModalError(null); // Resetear error al abrir el modal
   };
 
-  // Función para generar un reporte PDF de pacientes
+  // Función para generar un reporte PDF de especialidades
   const handleShowReport = () => {
     generatePDF();
   };
 
-  // Función para generar el PDF con los datos de los pacientes
+  // Función para generar el PDF con los datos de las especialidades
   const generatePDF = () => {
     const doc = new jsPDF();
-    doc.text(20, 20, 'Reporte de Pacientes');
+    doc.text(20, 20, 'Reporte de Especialidades');
 
-    const pacientesData = pacientes.map(paciente => [
-      paciente.cedula,
-      paciente.paciente,
-      paciente.edad,
-      paciente.sexo,
-      paciente.celular,
-      paciente.fecha
+    const especialidadesData = especialidades.map(especialidad => [
+      especialidad.id_especialidad,
+      especialidad.nombre,
     ]);
 
     doc.autoTable({
-      head: [['Cédula', 'Paciente', 'Edad', 'Sexo', 'Celular', 'Fecha de Ingreso']],
-      body: pacientesData,
+      head: [['ID Especialidad', 'Nombre']],
+      body: especialidadesData,
     });
 
-    doc.save('reporte_pacientes.pdf');
+    doc.save('reporte_especialidades.pdf');
   };
 
-  // Columnas para la tabla de pacientes
+  // Columnas para la tabla de especialidades
   const columns = [
     {
-      name: 'CÉDULA',
-      selector: row => row.cedula,
+      name: '#',
+      selector: row => row.id_especialidad,
       sortable: true,
     },
     {
-      name: 'PACIENTE',
-      selector: row => row.paciente,
-      sortable: true,
-    },
-    {
-      name: 'EDAD',
-      selector: row => row.edad,
-      sortable: true,
-    },
-    {
-      name: 'SEXO',
-      selector: row => row.sexo,
-      sortable: true,
-    },
-    {
-      name: 'CELULAR',
-      selector: row => row.celular,
-      sortable: true,
-    },
-    {
-      name: 'FECHA DE INGRESO',
-      selector: row => row.fecha,
+      name: 'NOMBRE',
+      selector: row => row.nombre,
       sortable: true,
     },
     {
       name: 'ACCIONES',
       cell: row => (
         <>
-          <button title="Editar" className="btn btn-primary btn-sm mr-2 action-button" onClick={() => handleEditPaciente(row)}>
+          <button title="Editar" className="btn btn-primary btn-sm mr-2 action-button" onClick={() => handleEditEspecialidad(row)}>
             <i className="fas fa-edit"></i>
-          </button> 
-          <button title="Eliminar" className="btn btn-danger btn-sm mr-2 action-button" onClick={() => handleDeletePaciente(row.cedula)}>
+          </button>
+          <button title="Eliminar" className="btn btn-danger btn-sm mr-2 action-button" onClick={() => handleDeleteEspecialidad(row.id_especialidad)}>
             <i className="fas fa-trash"></i>
           </button>
         </>
@@ -250,20 +217,19 @@ const Pacientes = () => {
   ];
 
   useEffect(() => {
-    fetchPacientes();
+    fetchEspecialidades();
   }, []);
 
   useEffect(() => {
-    const result = pacientes.filter(paciente =>
-      paciente.paciente.toLowerCase().includes(search.toLowerCase()) ||
-      paciente.cedula.includes(search)
-    );
-    setFilteredPacientes(result);
-  }, [search, pacientes]);
+    const result = especialidades.filter(entry => {
+      return entry.nombre.toLowerCase().includes(search.toLowerCase());
+    });
+    setFilteredEspecialidades(result);
+  }, [search, especialidades]);
 
   return (
     <div className="container mt-4">
-      <h4>Pacientes</h4>
+      <h4>Especialidades</h4>
       <div className="d-flex justify-content-end mb-3">
         <input
           type="text"
@@ -273,7 +239,7 @@ const Pacientes = () => {
           onChange={(e) => setSearch(e.target.value)}
         />
         <button className="btn btn-success" onClick={handleOpenModal}>
-          <i className="fas fa-plus"></i> Nuevo
+          <i className="fas fa-plus"></i> Nueva
         </button>
       </div>
       {error && (
@@ -283,7 +249,7 @@ const Pacientes = () => {
       )}
       <DataTable
         columns={columns}
-        data={filteredPacientes}
+        data={filteredEspecialidades}
         pagination
         highlightOnHover
         pointerOnHover
@@ -307,7 +273,7 @@ const Pacientes = () => {
           <div className="modal-dialog" role="document">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">{editPaciente ? 'Editar Paciente' : 'Crear Paciente'}</h5>
+                <h5 className="modal-title">{editEspecialidad ? 'Editar Especialidad' : 'Crear Especialidad'}</h5>
                 <button type="button" className="close" onClick={handleCloseModal}>
                   <span aria-hidden="true">&times;</span>
                 </button>
@@ -316,31 +282,11 @@ const Pacientes = () => {
                 {modalError && <div className="alert alert-danger">{modalError}</div>}
                 <form onSubmit={handleSubmit}>
                   <div className="form-group">
-                    <label>Cédula</label>
-                    <input type="number" className="form-control" name="cedula" value={formData.cedula} onChange={handleChange} disabled={!!editPaciente} />
-                  </div>
-                  <div className="form-group">
-                    <label>Nombre del paciente</label>
-                    <input type="text" className="form-control" name="paciente" value={formData.paciente} onChange={handleChange} />
-                  </div>
-                  <div className="form-group">
-                    <label>Edad</label>
-                    <input type="number" className="form-control" name="edad" value={formData.edad} onChange={handleChange} />
-                  </div>
-                  <div className="form-group">
-                    <label>Sexo</label>
-                    <select className="form-control" name="sexo" value={formData.sexo} onChange={handleChange}>
-                      <option value="Masculino">Masculino</option>
-                      <option value="Femenino">Femenino</option>
-                      <option value="Otro">Otro</option>
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label>Celular</label>
-                    <input type="text" className="form-control" name="celular" value={formData.celular} onChange={handleChange} />
+                    <label>Nombre de la Especialidad</label>
+                    <input type="text" className="form-control" name="nombre" value={formData.nombre} onChange={handleChange} />
                   </div>
                   <button type="submit" className="btn btn-primary">
-                    {editPaciente ? 'Editar' : 'Crear'}
+                    {editEspecialidad ? 'Editar' : 'Crear'}
                   </button>
                 </form>
               </div>
@@ -352,4 +298,4 @@ const Pacientes = () => {
   );
 };
 
-export default Pacientes;
+export default Especialidad;
