@@ -11,6 +11,9 @@ const RegistrarResultados = () => {
   const [pacientes, setPacientes] = useState([]);
   const [searchPaciente, setSearchPaciente] = useState('');
   const [analisisYExamenes, setAnalisisYExamenes] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedAnalisisId, setSelectedAnalisisId] = useState(null);
+  const [selectedExamenId, setSelectedExamenId] = useState(null);
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -72,7 +75,6 @@ const RegistrarResultados = () => {
   const handlePacienteSelect = async (paciente) => {
     setPaciente(paciente);
     setShowPacienteModal(false);
-    console.log(paciente)
 
     const token = localStorage.getItem('token');
     if (!token) {
@@ -89,8 +91,6 @@ const RegistrarResultados = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log(data.medico);
-        console.log(data.analisisYExamenes);
         setMedico(data.medico);
         setAnalisisYExamenes(data.analisisYExamenes);
       } else {
@@ -107,11 +107,50 @@ const RegistrarResultados = () => {
     p.paciente.toLowerCase().includes(searchPaciente.toLowerCase())
   );
 
-  const handleRegistrarResultados = (analisisId, examenId) => {
-    // Aquí puedes implementar la lógica para registrar los resultados del examen
-    console.log(`Registrar resultados para análisis ${analisisId}, examen ${examenId}`);
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
   };
-  
+
+  const handleRegistrarResultados = async (id_realizar) => {
+    if (!selectedFile) {
+      alert('Por favor selecciona un archivo PDF.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('id_realizar', paciente.id_realizar);
+
+    console.log(paciente.id_realizar)
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setError('Token no encontrado en localStorage');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/resultado', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        alert('Archivo subido exitosamente.');
+        // Optionally reset the file input and other states
+        setSelectedFile(null);
+      } else {
+        setError('Error al registrar los resultados.');
+      }
+    } catch (error) {
+      console.error('Error al registrar los resultados:', error);
+      setError('Error al registrar los resultados.');
+    }
+  };
+
   return (
     <div className="container mt-4">
       <h4>Registrar Resultados</h4>
@@ -155,7 +194,32 @@ const RegistrarResultados = () => {
               <td>{item.analisis}</td>
               <td>{item.examen}</td>
               <td>
-                <Button variant="primary" onClick={() => handleRegistrarResultados(item.analisisId, item.examenId)}>Registrar Resultados</Button>
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    setSelectedAnalisisId(item.analisisId);
+                    setSelectedExamenId(item.examenId);
+                  }}
+                >
+                  Seleccionar
+                </Button>
+                {selectedAnalisisId === item.analisisId && selectedExamenId === item.examenId && (
+                  <Form.Group>
+                    <Form.Label>Subir Resultado (PDF)</Form.Label>
+                    <Form.Control
+                      type="file"
+                      accept=".pdf"
+                      onChange={handleFileChange}
+                    />
+                    <Button
+                      variant="primary"
+                      className="mt-2"
+                      onClick={() => handleRegistrarResultados(paciente.id_realizar)} // Pasar id_realizar al manejar el registro de resultados
+                    >
+                      Registrar Resultados
+                    </Button>
+                  </Form.Group>
+                )}
               </td>
             </tr>
           ))}

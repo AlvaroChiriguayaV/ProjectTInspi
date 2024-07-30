@@ -3,6 +3,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import DataTable from 'react-data-table-component';
 import RealizarExamen from './realizarExamen'; // Import the RealizarExamen component
 import EditarExamenModal from './EditarExamenModal'; // Import the EditarExamenModal component
+import jsPDF from 'jspdf'; // Import jsPDF
+import 'jspdf-autotable'; // Import jsPDF autoTable
+
 
 const MantenimientoExamen = () => {
   const [examenes, setExamenes] = useState([]);
@@ -76,7 +79,9 @@ const MantenimientoExamen = () => {
     const result = examenes.filter(examen =>
       examen.cedula_paciente.toLowerCase().includes(search.toLowerCase()) ||
       examen.paciente.toLowerCase().includes(search.toLowerCase()) ||
-      examen.nombre_medico.toLowerCase().includes(search.toLowerCase())
+      examen.nombre_medico.toLowerCase().includes(search.toLowerCase()) ||
+      examen.analisis.toLowerCase().includes(search.toLowerCase()) ||
+      examen.examen.toLowerCase().includes(search.toLowerCase())
     );
     setFilteredExamenes(result);
   }, [search, examenes]);
@@ -131,6 +136,45 @@ const MantenimientoExamen = () => {
     }
   };
 
+  const handleDownloadOrder = (examen) => {
+    const doc = new jsPDF();
+
+    // Logo
+    
+    // Datos del laboratorio
+    doc.setFontSize(12);
+    doc.text('Laboratorio Clínico GB-Lab', 20, 15);
+    doc.text('MUCHO LOTE 1 ETAPA 3 Mz: 2344', 20, 25);
+    doc.text('(04) 505-2852', 20, 35);
+    doc.text('laboratorio.gblab@gmail.com', 20, 45);
+
+    // Título
+    doc.setFontSize(12);
+    doc.text('Orden de Examen', 20, 70);
+
+    // Información del paciente y médico en dos columnas
+    doc.setFontSize(10);
+    doc.text(`Cédula Paciente: ${examen.cedula_paciente}`, 20, 80);
+    doc.text(`Paciente: ${examen.paciente}`, 20, 90);
+    doc.text(`Edad: ${examen.edad}`, 20, 100);
+    
+    doc.text(`Sexo: ${examen.sexo}`, 120, 80);
+    doc.text(`Médico: ${examen.nombre_medico}`, 120, 90);
+    doc.text(`Fecha de Ingreso: ${examen.fecha}`, 120, 100);
+
+    // Tabla de análisis y examen
+    doc.autoTable({
+      startY: 130,
+      head: [['Análisis', 'Examen']],
+      body: [
+        [examen.analisis, examen.examen]
+      ],
+      theme: 'striped'
+    });
+
+    doc.save(`Orden_Examen_${examen.cedula_paciente}.pdf`);
+  };
+
   // Columnas para la tabla de exámenes realizados
   const columns = [
     {
@@ -154,6 +198,16 @@ const MantenimientoExamen = () => {
       sortable: true,
     },
     {
+      name: 'Análisis',
+      selector: row => row.analisis,
+      sortable: true,
+    },
+    {
+      name: 'Examen',
+      selector: row => row.examen,
+      sortable: true,
+    },
+    {
       name: 'Acciones',
       cell: row => (
         <>
@@ -162,6 +216,9 @@ const MantenimientoExamen = () => {
           </button>
           <button title="Eliminar" className="btn btn-danger btn-sm action-button" onClick={() => handleDeleteExamen(row.id_realizar)}>
             <i className="fas fa-trash"></i>
+          </button>
+          <button title="Descargar Orden" className="btn btn-secondary btn-sm action-button" onClick={() => handleDownloadOrder(row)}>
+            <i className="fas fa-download"></i>
           </button>
         </>
       ),

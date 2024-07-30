@@ -5,7 +5,7 @@ const { verificaToken } = require('./auth');
 const moment = require('moment-timezone');
 
 // Endpoint para obtener exámenes según el análisis seleccionado
-router.get('/', verificaToken, async (req, res) => {
+/* router.get('/', verificaToken, async (req, res) => {
   try {
     const [rows] = await (await Conexion).execute(
       'SELECT re.id_realizar, re.id_paciente, p.cedula AS cedula_paciente, p.paciente, m.nombre_apellido AS nombre_medico, re.fecha FROM realizar_examen re INNER JOIN pacientes p ON re.id_paciente = p.id_paciente INNER JOIN Medico m ON re.id_medico = m.id_medico GROUP BY p.cedula, p.paciente, m.nombre_apellido, re.fecha'
@@ -19,10 +19,30 @@ router.get('/', verificaToken, async (req, res) => {
     console.error('Error fetching users:', error);
     res.status(500).json({ error: 'Error al obtener usuarios.' });
   }
-});
+}); */
 
 // Endpoint para agregar un nuevo examen realizado
-
+router.get('/', verificaToken, async (req, res) => {
+  try {
+    const [rows] = await (await Conexion).execute(
+      `SELECT re.id_realizar, re.id_paciente, p.cedula AS cedula_paciente, p.paciente, p.edad, p.sexo, m.nombre_apellido AS nombre_medico, re.fecha, a.analisis , e.examen
+       FROM realizar_examen re 
+       INNER JOIN pacientes p ON re.id_paciente = p.id_paciente 
+       INNER JOIN Medico m ON re.id_medico = m.id_medico 
+       INNER JOIN analisis a ON re.id_analisis = a.id_analisis 
+       INNER JOIN examenes e ON re.id_examen = e.id_examen
+       GROUP BY p.cedula, p.paciente, p.edad, p.sexo, m.nombre_apellido, re.fecha, a.analisis, e.examen`
+    );
+    const mantexamen = rows.map(row => ({
+      ...row,
+      fecha: moment(row.fecha).format('YYYY-MM-DD HH:mm:ss')
+    }));
+    res.json({ mantexamen: mantexamen });
+  } catch (error) {
+    console.error('Error fetching exams:', error);
+    res.status(500).json({ error: 'Error al obtener exámenes.' });
+  }
+});
 router.post('/', verificaToken, async (req, res) => {
   const { id_paciente, id_medico, examenes } = req.body;
 
@@ -114,7 +134,7 @@ router.get('/:id', verificaToken, async (req, res) => {
       [id_paciente]
     );
 
-    console.log(id_paciente);
+    
 
     if (medicoResult.length === 0) {
       return res.status(404).json({ error: 'Médico no encontrado para el paciente proporcionado.' });

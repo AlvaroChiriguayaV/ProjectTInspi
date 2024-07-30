@@ -13,7 +13,7 @@ import MantExamen from '../Examenes/mantenimientoExamen';
 import Especialidad from '../Especilaidad/especialidad';
 import ExamenDetalle from '../Examenes/examenDetalles';
 import RegistrarResultados from '../ResultadosMedicos/resultados';
-
+import ResultadosTabla from '../ResultadosMedicos/resultadosTabla';
 import './AdminPage.css';
 import labLogo from '../Login/image/GB-LAB.png';
 import Pacientes from '../pacientes/pacientes';
@@ -153,7 +153,7 @@ const AdminPage = () => {
         return <Medico />;
       case 'Realizar Examenes':
         return <MantExamen />;
-      case 'Resultados de Examen':
+      case 'Registrar Resultados':
         return <RegistrarResultados/>;
       case 'users':
         return <Users />;
@@ -169,6 +169,8 @@ const AdminPage = () => {
         return <Especialidad/>;
       case 'Examen Detalles':
         return <ExamenDetalle/>;
+        case 'Resultados de Examen':
+          return <ResultadosTabla/>;
       default:
         return <div>Vista no encontrada</div>;
     }
@@ -184,8 +186,8 @@ const AdminPage = () => {
         return 'Pacientes';
         case 'Medico':
         return 'Medico';
-      case 'Resultado de Examen':
-        return 'Resultado de Examen';
+      case 'Registrar Resultados':
+        return 'Registrar Resultados';
       case 'inicio':
         return 'Inicio';
       case 'users':
@@ -214,7 +216,7 @@ const AdminPage = () => {
     'Pacientes': 'fas fa-user-plus',
     'Medico': 'fa-solid fa-user-doctor',
     'Realizar Examenes': 'fas fa-file-medical',
-    'Resultados de Examen': 'fas fa-vials',
+    'Registrar Resultados': 'fas fa-vials',
     'Analisis': 'fa-solid fa-notes-medical',
     'Examenes': 'fas fa-file-medical-alt',
     'Especialidad': 'fas fa-briefcase-medical',
@@ -332,9 +334,12 @@ const AdminPage = () => {
                   case 'Examen Detalles':
                     componentKey = 'Examen Detalles';
                     break;
-                  case 'Resultados de Examen':
-                    componentKey = 'Resultados de Examen';
+                  case 'Registrar Resultados':
+                    componentKey = 'Registrar Resultados';
                     break;
+                    case 'Resultados de Examen':
+                      componentKey = 'Resultados de Examen';
+                      break;
                   default:
                     
                     componentKey = category.toLowerCase();

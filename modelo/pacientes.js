@@ -25,7 +25,7 @@ router.get('/', verificaToken, async (req, res) => {
 
   // Endpoint para crear un nuevo usuario
 router.post('/', verificaToken, async (req, res) => {
-    const { cedula, paciente, edad, sexo, celular, fecha_de_ingreso } = req.body;
+    const { cedula, paciente, edad, sexo, celular} = req.body;
     const usuario_nombre = req.user.name; // Asumiendo que el middleware verificaToken añade el nombre del usuario logueado a req.user
     const ip_usuario = getClientIp(req);
     const accion = `Creó Usuario con Cédula: ${cedula}`;
